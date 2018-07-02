@@ -1,45 +1,45 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import YTSearch from "youtube-api-search";
+import axios from "axios";
 import SearchBar from "./components/search_bar";
-import VideoList from "./components/video_list";
-import VideoDetail from "./components/video_detail";
-const API_KEY = "AIzaSyAuQCVeNfKhtRk9KlChQPT1nO27DPO_5Ss";
+import ResultList from "./components/result_list";
+import ResultDetail from "./components/result_detail";
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      videos: [],
-      selectedVideo: null
+      results: [],
+      selectedResult: null
     };
 
-    this.videoSearch("surfboards");
+    this.keywordSearch("surfboards");
   }
 
-  videoSearch(term) {
-    YTSearch({ key: API_KEY, term: term }, videos => {
+  keywordSearch(term) {
+    axios.post('/fn/holodex/search', {
+      entryType: "record", queryString : term}, results => {
       this.setState({
-        videos: videos,
-        selectedVideo: videos[0]
+        results: results,
+        selectedResult: results[0]
       });
     });
   }
 
   render() {
-    const videoSearch = _.debounce(term => {
-      this.videoSearch(term);
+    const keywordSearch = _.debounce(term => {
+      this.keywordSearch(term);
     }, 300);
 
     return (
       <div>
-        <SearchBar onSearchTermChange={videoSearch} />
-        <VideoDetail video={this.state.selectedVideo} />
-        <VideoList
-          onVideoSelect={selectedVideo => this.setState({ selectedVideo })}
-          videos={this.state.videos}
+        <SearchBar onSearchTermChange={keywordSearch} />
+        <ResultDetail result={this.state.selectedResult} />
+        <ResultList
+          onResultSelect={selectedResult => this.setState({ selectedResult })}
+          Results={this.state.results}
         />
       </div>
     );
